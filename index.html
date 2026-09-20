@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Camera Detection</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="mark">⌖</span><h1>AI Camera Detection</h1></div>
+    <span class="tag">runs locally</span>
+  </div>
+  <p class="sub">Nothing leaves your device — no uploads, no server.</p>
+
+  <div class="viewfinder" id="viewfinder">
+    <div class="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+    <span class="tick tl" aria-hidden="true"></span>
+    <span class="tick tr" aria-hidden="true"></span>
+    <span class="tick bl" aria-hidden="true"></span>
+    <span class="tick br" aria-hidden="true"></span>
+    <span class="live-badge"><i class="live-dot"></i>LIVE</span>
+  </div>
+
+  <div class="hud">
+    <div id="status" class="hud-status">Checking browser capabilities…</div>
+    <div id="counts" class="hud-counts"></div>
+  </div>
+
+  <div class="deck">
+    <div class="deck-row">
+      <span class="deck-label">Detect</span>
+      <div class="toggle-group">
+        <label class="toggle"><input type="checkbox" id="chk_faces" checked><span>Faces</span></label>
+        <label class="toggle"><input type="checkbox" id="chk_motion" checked><span>Motion</span></label>
+        <label class="toggle"><input type="checkbox" id="chk_objects" checked><span>Objects</span></label>
+      </div>
+    </div>
+    <div class="deck-row">
+      <span class="deck-label">Face filter</span>
+      <select id="faceFilter" title="AR face filter">
+        <option value="none">No face filter</option>
+        <option value="glasses">😎 Glasses</option>
+        <option value="hat">🎩 Top hat</option>
+        <option value="bunny">🐰 Bunny ears</option>
+        <option value="crown">👑 Crown</option>
+      </select>
+    </div>
+    <div class="deck-row">
+      <span class="deck-label">Actions</span>
+      <div class="actions">
+        <button id="startBtn" class="btn btn-primary">Start camera</button>
+        <button id="stopBtn" class="btn btn-ghost" disabled>Stop</button>
+        <button id="snapBtn" class="btn btn-accent" disabled>📸 Snapshot</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--face)"></i>face</span>
+    <span><i class="dot" style="background:var(--motion)"></i>motion</span>
+    <span><i class="dot" style="background:var(--object)"></i>object</span>
+  </div>
+
+  <p class="note">
+    Faces use your browser's built-in Shape Detection API (real on-device AI — best supported on Chrome/Edge).
+    Motion and Objects use classical computer-vision heuristics (frame differencing and edge/contour detection) —
+    they draw boxes around moving or high-contrast regions but don't name what's in them (no "car" or "dog" labels).
+    Detections render as an AR HUD (bracket reticles, pulsing lock-on dot, floating tag with a rough % of frame).
+    Pick a face filter to swap the face reticle for a tracked AR overlay (glasses, hat, bunny ears, crown), and
+    use Snapshot to save the current view with all overlays baked in. For full multi-class object recognition,
+    use the Python version instead.
+  </p>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
