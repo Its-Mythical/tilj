@@ -326,6 +326,46 @@
 
     .online-hint.err { color: var(--x); opacity: 0.9; }
 
+    /* ---------- Transitions between views ---------- */
+    @keyframes panel-in {
+        from { opacity: 0; transform: translateY(12px) scale(0.98); }
+        to   { opacity: 1; transform: none; }
+    }
+
+    @keyframes panel-out {
+        to { opacity: 0; transform: translateY(8px); }
+    }
+
+    @keyframes view-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: none; }
+    }
+
+    .online-panel:not([hidden]) { animation: panel-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1); }
+
+    .online-panel.leaving { animation: panel-out 0.14s ease-in forwards; }
+
+    #online-setup:not([hidden]),
+    #online-hosting:not([hidden]) { animation: view-in 0.24s ease-out; }
+
+    /* quick reshuffle of the board column when the game mode changes */
+    @keyframes mode-swap {
+        0%   { opacity: 1; }
+        30%  { opacity: 0; transform: scale(0.96) rotate(-0.8deg); }
+        100% { opacity: 1; transform: none; }
+    }
+
+    .stage.swapping { animation: mode-swap 0.34s ease; }
+
+    /* score pops when it changes */
+    @keyframes score-bump {
+        0%   { transform: scale(1); }
+        40%  { transform: scale(1.4) rotate(-4deg); }
+        100% { transform: scale(1); }
+    }
+
+    .stat .value.bump { animation: score-bump 0.35s cubic-bezier(0.2, 1.6, 0.4, 1); }
+
     @media (max-width: 480px) {
         .online-cards { grid-template-columns: 1fr; }
         .online-card-sub { min-height: 0; }
@@ -383,7 +423,8 @@
     .board-wrap {
         position: relative;
         width: 100%;
-        max-width: 460px;
+        max-width: 460px; /* fallback for old browsers */
+        max-width: clamp(300px, calc(100dvh - 380px), 460px); /* never taller than the screen */
         margin: 0 auto;
     }
 
@@ -534,6 +575,22 @@
         outline-offset: 2px;
     }
 
+    /* roomier, bigger controls while playing online */
+    body.online-mode .controls {
+        gap: 14px;
+        margin-top: 24px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+    }
+
+    body.online-mode .controls .btn {
+        padding: 17px 38px 18px;
+        font-size: 16px;
+    }
+
+    /* trim the board a touch so the roomier column still fits the screen */
+    body.online-mode .board-wrap { max-width: min(100%, 520px); }
+
     /* ---------- End overlay ---------- */
     .scrim {
         position: fixed;
@@ -601,18 +658,98 @@
     }
 
     /* ---------- Responsive ---------- */
+    /* Desktop / wide tablets: HUD sidebar on the left, big board on the right */
+    @media (min-width: 900px) {
+        .wrap {
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+            gap: clamp(28px, 4vw, 48px);
+            align-items: center;
+        }
+
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .stage {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        header, .modes, .online-panel, .status { margin-bottom: 0; }
+        .round-note { text-align: left; margin: 0; }
+        .controls { margin-top: 0; }
+        .board-wrap { max-width: 560px; }
+
+        /* lobby cards stack inside the narrower sidebar */
+        .online-cards { grid-template-columns: 1fr; }
+        .online-card-sub { min-height: 0; }
+    }
+
+    /* Short landscape screens (phones on their side, short laptop windows):
+       compact two-column layout so the whole game fits without scrolling */
+    @media (orientation: landscape) and (max-height: 620px) {
+        body { padding: 16px 20px; }
+
+        .wrap {
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+            gap: clamp(24px, 4vw, 40px);
+            align-items: center;
+        }
+
+        .side { display: flex; flex-direction: column; gap: 14px; }
+        header, .modes, .online-panel, .status { margin-bottom: 0; }
+        .round-note { display: none; }
+        h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); }
+        .stat { padding: 6px 10px 7px; min-width: 62px; }
+        .stat .value { font-size: 21px; }
+        .modes { gap: 7px; }
+        .mode-btn { font-size: 11px; padding: 7px 11px 8px; }
+        .status { font-size: 14px; }
+        .controls { margin-top: 0; gap: 10px; }
+        .controls .btn { padding: 9px 16px; font-size: 12px; }
+        /* keep the roomier online controls small enough for short screens */
+        body.online-mode .controls { margin-top: 14px; margin-bottom: 4px; padding-bottom: 0; }
+        body.online-mode .controls .btn { padding: 12px 28px 13px; font-size: 14px; }
+        body.online-mode .board-wrap { max-width: min(520px, calc(100dvh - 150px)); }
+        .board-wrap { max-width: min(520px, calc(100dvh - 120px)); }
+        .stage { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+        .online-panel { padding: 12px; }
+        .online-cards { grid-template-columns: 1fr; }
+        .online-card-sub { min-height: 0; }
+        .code-tile { width: 38px; height: 38px; font-size: 21px; }
+    }
+
     @media (max-width: 560px) {
+        body { padding: 28px 16px; }
         header { align-items: flex-start; flex-direction: column; }
         .scores { width: 100%; }
         .stat { flex: 1; }
         .board { box-shadow: 7px 7px 0 var(--ink); }
         .card { padding: 36px 26px 32px; }
+        /* give the controls a chance to fit above the fold on short screens */
+        .board-wrap { max-width: min(100%, clamp(260px, calc(100dvh - 430px), 460px)); }
+        .controls { margin-top: 14px; }
+        .status { margin-bottom: 10px; }
+        .round-note { margin: 0 4px 6px; }
+        body.online-mode .controls { margin-top: 14px; margin-bottom: 10px; padding-bottom: 0; }
+        body.online-mode .controls .btn { padding: 15px 30px 16px; font-size: 15px; }
     }
 
     /* ---------- Reduced motion ---------- */
     @media (prefers-reduced-motion: reduce) {
         .dab, .spl { animation: none; }
         .online-waiting .dot { animation: none; opacity: 0.6; }
+        .online-panel:not([hidden]), .online-panel.leaving,
+        #online-setup:not([hidden]), #online-hosting:not([hidden]),
+        .stage.swapping, .stat .value.bump { animation: none; }
         .board.dealing .cell { animation: none; }
         .cell.win svg { animation: none; }
         .card { animation: none; }
@@ -623,6 +760,7 @@
 </head>
 <body>
     <main class="wrap">
+        <section class="side">
         <header>
             <div>
                 <h1>TIC <span class="hx">TAC</span> TOE</h1>
@@ -694,7 +832,9 @@
         </div>
 
         <p class="round-note" id="round-note">fresh board.</p>
+        </section>
 
+        <section class="stage">
         <div class="board-wrap">
             <div class="board x-turn" id="board" role="grid" aria-label="Tic tac toe board"></div>
             <svg class="strike" id="strike" aria-hidden="true"></svg>
@@ -704,6 +844,7 @@
             <button class="btn btn-primary" id="new-round">New Round</button>
             <button class="btn btn-secondary" id="reset-scores">Reset Scores</button>
         </div>
+        </section>
 
     </main>
 
@@ -1038,7 +1179,19 @@
     }
 
     function showPanel(which) { // 'setup' | 'hosting' | null
-        panelEl.hidden = (which === null);
+        if (which !== null) {
+            panelEl.classList.remove('leaving');
+            panelEl.hidden = false;
+        } else if (!panelEl.hidden) {
+            // fade out first, then actually hide
+            panelEl.classList.add('leaving');
+            setTimeout(function () {
+                if (panelEl.classList.contains('leaving')) {
+                    panelEl.hidden = true;
+                    panelEl.classList.remove('leaving');
+                }
+            }, 140);
+        }
         setupEl.hidden = which !== 'setup';
         hostingEl.hidden = which !== 'hosting';
         if (which === null) hint('');
@@ -1149,6 +1302,7 @@
 
     function enterOnlineMode() {
         mode = 'online';
+        document.body.classList.add('online-mode');
         teardown();
         showPanel('setup');
         hint('');
@@ -1341,9 +1495,17 @@
     }
 
     function updateScores() {
-        document.getElementById('score-x').textContent = scores.X;
-        document.getElementById('score-o').textContent = scores.O;
-        document.getElementById('score-d').textContent = scores.draws;
+        var map = { 'score-x': scores.X, 'score-o': scores.O, 'score-d': scores.draws };
+        Object.keys(map).forEach(function (id) {
+            var el = document.getElementById(id);
+            var v = String(map[id]);
+            if (el.textContent !== v) {
+                el.textContent = v;
+                el.classList.remove('bump');
+                void el.offsetWidth; // restart the animation
+                el.classList.add('bump');
+            }
+        });
     }
 
     function roundNote() {
@@ -1407,10 +1569,24 @@
         if (mode === 'online') {
             enterOnlineMode();
         } else {
+            document.body.classList.remove('online-mode');
             teardown();
             showPanel(null);
             newRound();
         }
+        // reshuffle the board column on every mode change
+        var stage = document.querySelector('.stage');
+        stage.classList.remove('swapping');
+        void stage.offsetWidth;
+        stage.classList.add('swapping');
+    });
+
+    // clean up animation classes once they finish
+    document.querySelector('.stage').addEventListener('animationend', function (e) {
+        if (e.animationName === 'mode-swap') e.target.classList.remove('swapping');
+    });
+    document.querySelector('.scores').addEventListener('animationend', function (e) {
+        if (e.animationName === 'score-bump') e.target.classList.remove('bump');
     });
 
     document.getElementById('btn-create').addEventListener('click', function () { createRoom(); });
